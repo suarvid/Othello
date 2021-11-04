@@ -1,6 +1,7 @@
 module Main where
 import Move (makeMove, Move(Move))
 import Board (readBoard, showBoard, Piece, readPiece)
+import qualified Flip as F
 import Data.List
 
 emptyRow = "        \n"
@@ -28,10 +29,12 @@ main = do
     let initialBoard = readBoard exampleBoard
     putStrLn "Initial Board: "
     putStrLn $ showBoard initialBoard
-    putStrLn "Make your move: "
-    moveString <- getLine
-    let move = parseMove moveString
-    let updatedBoard = makeMove initialBoard move
-    putStrLn $ showBoard updatedBoard
+    putStrLn "White indexes:"
+    let blackIndexes = F.blackIndexes $ initialBoard !! 3
+    printIndexes blackIndexes
     
-
+printIndexes :: [Int] -> IO ()
+printIndexes [] = return ()
+printIndexes (i:is) = do
+    print i
+    printIndexes is
