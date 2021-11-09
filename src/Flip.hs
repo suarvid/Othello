@@ -59,3 +59,6 @@ flipColour _ [] = []
 flipColour (p:ps) (False:bs) = p : flipColour ps bs
 flipColour (White:ps) (True:bs) = Black : flipColour ps bs
 flipColour (Black:ps) (True:bs) = White : flipColour ps bs
+
+flipUnit :: [Piece] -> [Piece]
+flipUnit [] = []

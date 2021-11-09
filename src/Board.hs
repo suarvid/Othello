@@ -2,6 +2,9 @@ module Board
   (showBoard,
   readBoard,
   readPiece,
+  emptyBoard,
+  emptySquares,
+  opponentColor,
   Piece(..),
   Board,
   Square,
@@ -39,3 +42,50 @@ readBoard = map readRow . lines
 showBoard :: Board -> String
 showBoard = unlines . map showRow
   where showRow = map showSquare
+
+emptyBoard :: Board
+emptyBoard = replicate 8 row
+  where row = replicate 8 Nothing
+
+opponentColor :: Piece -> Piece
+opponentColor Black = White
+opponentColor White = Black
+
+
+getRowOf :: Board -> (Int, Int) -> Maybe [Square]
+getRowOf board (_, y)
+  | y >= 0 && length board > y = Just (board !! y) 
+  | otherwise = Nothing
+
+
+getColOf :: Board -> (Int, Int) -> Maybe [Square]
+getColOf board (x, _)
+  | x >= 0 && length (head board) > x = Just(map (!! x) board)
+  | otherwise = Nothing  
+
+-- TODO: Implement this! Check if there is some nice transpose function we could use
+-- in order to make diagonals rows or columns, and then just apply one of the other functions on that!
+getDiagonalsOf :: Board -> (Int, Int) -> Maybe [Square]
+getDiagonalsOf = undefined
+
+-- should return the coordinates of playable squares
+-- (0,0) is in the top left
+-- TODO: Make sure this works properly
+emptySquares :: Board -> [(Int, Int)]
+emptySquares [] = []
+emptySquares rows = concat $ zipWith zipRowNumber [0..] (map emptyInRow rows)
+
+zipRowNumber :: Int -> [Int] -> [(Int, Int)]
+zipRowNumber _ [] = []
+zipRowNumber n xs = zip (repeat n) xs
+-- zip :: [a] -> [b] -> [(a,b)]
+
+
+emptyInRow :: [Square] -> [Int]
+emptyInRow [] = []
+emptyInRow sqs = emptyInRow' sqs 0
+
+emptyInRow' :: [Square] -> Int -> [Int]
+emptyInRow' [] _ = []
+emptyInRow' (Nothing:sqs) index = index : emptyInRow' sqs (index+1)
+emptyInRow' (_:sqs) index = emptyInRow' sqs (index+1)
