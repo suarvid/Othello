@@ -64,12 +64,38 @@ validMove (Move color (x,y)) board
   | isNothing (getRowOf board (x, y)) || isNothing (getColOf board (x, y)) = False
   | otherwise = trapsInRow || trapsInCol
   where
-    trapsInRow = trapsInUnit color x row
-    trapsInCol = trapsInUnit color y col
+    trapsInRow = causesFlipInUnit color x row
+    trapsInCol = causesFlipInUnit color y col
     Just row = getRowOf board (x,y)
     Just col = getColOf board (x,y)
 
 
+-- disregard nothing's for now
+-- just check if there is an opponent piece to the left or right in the list
+-- that is sandwiched between the piece being placed at index and another piece of the same colour
+causesFlipInUnit :: Piece -> Int -> [Square] -> Bool
+causesFlipInUnit _ _ [] = False
+causesFlipInUnit color index squares = trapsLeft || trapsRight
+  where
+    trapsLeft = checkLeft color index squares
+    trapsRight = checkRight color index squares
+
+
+checkLeft :: Piece -> Int -> [Square] -> Bool
+checkLeft color index squares = playerPieceExists && leftMostPlayerIndex < adjacentIndex && squares !! adjacentIndex == Just(opponentColor color)
+  where
+    (playerPieceExists, leftMostPlayerIndex) = firstIndex color squares
+    adjacentIndex = index - 1
+
+
+checkRight :: Piece -> Int -> [Square] -> Bool
+checkRight color index squares = playerPieceExists && rightMostPlayerIndex > adjacentIndex && squares !! adjacentIndex == Just(opponentColor color)
+  where
+    (playerPieceExists, rightMostPlayerIndex) = firstIndex color $ reverse squares
+    adjacentIndex = index + 1
+
+
+-- this function definition is kinda werid
 -- A unit is a row, column or diagonal
 trapsInUnit :: Piece -> Int -> [Square] -> Bool
 trapsInUnit _ _ [] = False

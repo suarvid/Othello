@@ -27,7 +27,6 @@ library
   exposed-modules:
       Board
       Flip
-      Lib
       Move
   other-modules:
       Paths_othello
