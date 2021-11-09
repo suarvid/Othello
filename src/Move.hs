@@ -95,22 +95,6 @@ checkRight color index squares = playerPieceExists && rightMostPlayerIndex > adj
     adjacentIndex = index + 1
 
 
--- this function definition is kinda werid
--- A unit is a row, column or diagonal
-trapsInUnit :: Piece -> Int -> [Square] -> Bool
-trapsInUnit _ _ [] = False
-trapsInUnit _  0 ((Just _):sqs) = False -- position is occupied
-trapsInUnit color index (sq:sqs)
-  | index > 0 = trapsInUnit color (index-1) sqs
-  | otherwise = flippingMove color (sq:sqs)
-
-flippingMove :: Piece -> [Square] -> Bool
-flippingMove color squares = (opponentExists && playerExists) && (opponentIndex < playerIndex)
-  where 
-    (opponentExists, opponentIndex) = firstIndex (opponentColor color) squares
-    (playerExists, playerIndex) = firstIndex color squares
-
-
 firstIndex :: Piece -> [Square] -> (Bool, Int)
 firstIndex color squares = firstIndex' color squares 0
 

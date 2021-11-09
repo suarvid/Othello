@@ -10,14 +10,8 @@ main = do
     let board = Move.initialBoard
     putStrLn "Initial Board: "
     putStrLn $ showBoard board
-    putStrLn "Empty positions of board: "
-    let emptyIndexes = Board.emptySquares board
-    print emptyIndexes
-    putStrLn "Valid moves for white: "
-    let legalMoves = genValidMoves White board
+    putStrLn "Valid moves for black: "
+    let legalMoves = genValidMoves Black board
     print legalMoves
-    putStrLn "All (including non-legal) moves for white: "
-    let allMoves = genMoves White board
-    print allMoves
 
 
