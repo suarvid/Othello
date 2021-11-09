@@ -1,6 +1,7 @@
 module Flip where
-import Board(Piece(White, Black), Square)
+import Board(opponentColor, Piece(White, Black), Square, Board)
 import Data.List.Split
+import Data.List
 -- for determining which pieces to flip in a given board
 -- could probably start by only taking the last move made into account
 -- and then checking if that results in vertical, horizontal or diagonal lines
@@ -60,5 +61,47 @@ flipColour (p:ps) (False:bs) = p : flipColour ps bs
 flipColour (White:ps) (True:bs) = Black : flipColour ps bs
 flipColour (Black:ps) (True:bs) = White : flipColour ps bs
 
-flipUnit :: [Piece] -> [Piece]
-flipUnit [] = []
+---------- I don't think any code above this comment is actually used ------------------------------
+
+-- Question is: Do we need to know which colour we are to flip a unit?
+-- it probably helps
+-- colour should represent the colour of the pieces which are to be flipped
+-- can use splitWhen (==Nothing) to get sublists of non-empty squares
+
+-- produces a list of sublists of non-empty squares
+nonEmptySquares :: [Square] -> [[Square]]
+nonEmptySquares = splitWhen (==Nothing) 
+
+-- this might be oversimplified, but it should be the case that the two
+-- edge pieces are always of the same colour, the one we should flip to
+flipSublist :: Piece -> [Square] -> [Square]
+flipSublist _ [] = []
+flipSublist colorToFlip squares = replicate (length squares) (Just(opponentColor colorToFlip))
+
+-- Checks the end of a non-empty sublist and determines if its contents should be flipped or not
+shouldFlip :: [Square] -> Bool
+shouldFlip [] = False
+shouldFlip squares = firstPiece == lastPiece
+    where
+        firstPiece = head squares
+        lastPiece = last squares
+
+rejoinSublists :: [[Maybe a]] -> [Maybe a]
+rejoinSublists [] = []
+rejoinSublists [x] = x
+rejoinSublists (x:xs) = x ++ [Nothing] ++ rejoinSublists xs
+
+-- need some way to flatten this, replacing empty lists with Nothings
+flipUnit :: Piece -> [Square] -> [Square]
+flipUnit _ [] = []
+flipUnit colorToFlip squares = rejoinSublists $ map (\x -> if shouldFlip x then flipSublist colorToFlip x else x) subLists
+    where
+        subLists = nonEmptySquares squares
+
+-- TODO: This does not yet take diagonals into consideration!
+flipBoard :: Piece -> Board -> Board
+flipBoard _ [] = []
+flipBoard colorToFlip rows = map (flipUnit colorToFlip) (transpose flippedRows)
+  where
+    flippedRows = map (flipUnit colorToFlip) rows
+    

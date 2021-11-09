@@ -1,5 +1,4 @@
 module Move(
-  initialBoard,
   makeMove,
   genValidMoves,
   genMoves,
@@ -9,7 +8,7 @@ module Move(
 
 import Board
 import Data.Maybe
-
+import Flip
 -- A Move is just adding a piece to a position
 data Move = Move Piece (Column, Row) deriving (Show)
 type Column = Int
@@ -17,7 +16,7 @@ type Row = Int
 
 -- same pattern, here: split, update Row, rejoin
 makeMove :: Board -> Move -> Board
-makeMove b (Move piece (x, y)) = upperRows ++ [updateRow row piece x] ++ lowerRows
+makeMove b (Move piece (x, y)) = (flipBoard (opponentColor piece)) $ upperRows ++ [updateRow row piece x] ++ lowerRows
   where (upperRows, row:lowerRows) = splitAt y b 
 
 -- split at col, remove first elem in right list, join back together
@@ -29,8 +28,8 @@ updateRow r p c = xs ++ [Just p] ++ ys
 -- but setting up a Board does require making moves
 -- Makes more sense than having makeMove in Board
 -- and otherwise we get circular dependencies
-initialBoard :: Board
-initialBoard = makeMove (makeMove (makeMove (makeMove Board.emptyBoard (Move Black (3,3))) (Move White (3,4))) (Move White (4,3))) (Move Black (4,4))
+
+
 
 -- parse a String of the form "w00" which means white at (0,0) 
 parseMove :: String -> Move
@@ -47,7 +46,7 @@ parseMove s =
 genValidMoves :: Piece -> Board -> [Move]
 genValidMoves color board = filter isValidMove allMoves
   where
-    isValidMove = flip validMove $ board
+    isValidMove = flip validMove board
     allMoves = genMoves color board 
 
 genMoves :: Piece -> Board -> [Move]
@@ -80,19 +79,19 @@ causesFlipInUnit color index squares = trapsLeft || trapsRight
     trapsLeft = checkLeft color index squares
     trapsRight = checkRight color index squares
 
-
 checkLeft :: Piece -> Int -> [Square] -> Bool
 checkLeft color index squares = playerPieceExists && leftMostPlayerIndex < adjacentIndex && squares !! adjacentIndex == Just(opponentColor color)
   where
     (playerPieceExists, leftMostPlayerIndex) = firstIndex color squares
     adjacentIndex = index - 1
 
-
+-- this is the one which does not work!
 checkRight :: Piece -> Int -> [Square] -> Bool
 checkRight color index squares = playerPieceExists && rightMostPlayerIndex > adjacentIndex && squares !! adjacentIndex == Just(opponentColor color)
   where
-    (playerPieceExists, rightMostPlayerIndex) = firstIndex color $ reverse squares
+    (playerPieceExists, reversedIndex) = firstIndex color $ reverse squares -- This will not produce the correct index, will give us the index in the reversed list, have to remove that much from the right-index
     adjacentIndex = index + 1
+    rightMostPlayerIndex = (length squares) - (1 + reversedIndex)
 
 
 firstIndex :: Piece -> [Square] -> (Bool, Int)

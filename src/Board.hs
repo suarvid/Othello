@@ -3,6 +3,7 @@ module Board
   readBoard,
   readPiece,
   emptyBoard,
+  initialBoard,
   emptySquares,
   opponentColor,
   getColOf,
@@ -12,7 +13,8 @@ module Board
   Square,
   ) where
 
-
+type Row = Int
+type Column = Int
 type Square = Maybe Piece
 type Board = [[Square]]
 data Piece = White | Black deriving (Eq, Show)
@@ -22,7 +24,7 @@ showPiece White = 'w'
 showPiece Black = 'b'
 
 showSquare :: Square -> Char
-showSquare Nothing = ' '
+showSquare Nothing = '_'
 showSquare (Just p) = showPiece p
 
 readPiece :: Char -> Piece
@@ -32,7 +34,7 @@ readPiece _ = error "Piece not recognized!"
 
 -- Does not read a String, reads a Char!!
 readSquare :: Char -> Square
-readSquare ' ' = Nothing
+readSquare '_' = Nothing
 readSquare p = Just(readPiece p)
 
 -- have to remember that the first character is who plays, not part of board!
@@ -49,9 +51,21 @@ emptyBoard :: Board
 emptyBoard = replicate 8 row
   where row = replicate 8 Nothing
 
+initialBoard :: Board
+initialBoard = addPiece Black (4,4) (addPiece White (4,3) (addPiece White (3,4) (addPiece Black (3,3) emptyBoard)))
+
 opponentColor :: Piece -> Piece
 opponentColor Black = White
 opponentColor White = Black
+
+addPiece :: Piece -> (Int, Int) -> Board -> Board
+addPiece piece (x, y) board = upperRows ++ [updateRow row piece x] ++ lowerRows
+  where (upperRows, row:lowerRows) = splitAt y board 
+
+-- split at col, remove first elem in right list, join back together
+updateRow :: [Square] -> Piece -> Column -> [Square]
+updateRow r p c = xs ++ [Just p] ++ ys 
+  where (xs,_:ys) = splitAt c r
 
 
 getRowOf :: Board -> (Int, Int) -> Maybe [Square]
