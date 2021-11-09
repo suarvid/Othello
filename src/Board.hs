@@ -5,6 +5,8 @@ module Board
   emptyBoard,
   emptySquares,
   opponentColor,
+  getColOf,
+  getRowOf,
   Piece(..),
   Board,
   Square,
@@ -13,7 +15,7 @@ module Board
 
 type Square = Maybe Piece
 type Board = [[Square]]
-data Piece = White | Black deriving Eq
+data Piece = White | Black deriving (Eq, Show)
 
 showPiece :: Piece -> Char
 showPiece White = 'w'
