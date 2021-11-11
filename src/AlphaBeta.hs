@@ -88,6 +88,7 @@ alphabeta player board
 -- Black is always Min
 -- Standard minimax without any pruning. Pretty slow, for depth > 6 it is way too slow.
 -- Probably too slow around depth of 5 too.
+-- TODO: Figure out how to get this to return a move instead of just the utility value
 minimax :: Int -> Player -> Board -> Double
 minimax 0 p b = heuristicValue b p -- have to add some check for terminal nodes
 minimax depth player board
